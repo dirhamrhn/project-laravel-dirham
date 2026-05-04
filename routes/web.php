@@ -1,14 +1,41 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ProductController;
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/products', [ProductController::class, 'index']);
-Route::post('/products', [ProductController::class, 'store']);
-Route::put('/products/{id}', [ProductController::class, 'update']);
-Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+// ==========================================
+// Halaman Utama (Menampilkan task)
+// ==========================================
+Route::get('/', [TaskController::class, 'index']);
 
-Route::get('/', function () {
-    return view('welcome');
+// ==========================================
+// Semua route yang butuh login
+// ==========================================
+Route::middleware(['auth'])->group(function () {
+
+Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+    // Dashboard (default Breeze)
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware('verified')->name('dashboard');
+
+    // Profile (default Breeze)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+// ==========================================
+// Auth routes (login, register, dll)
+// ==========================================
+require __DIR__.'/auth.php';
